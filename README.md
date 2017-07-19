@@ -2,7 +2,7 @@
 Send **C**loudera **M**anager services' health data to AWS **C**loud**W**atch
 
 ## Install
-Download binary from `https://github.com/virtualbeck/CM2CW/releases` and execute
+Download binary from `https://github.com/virtualbeck/CM2CW/releases`, extract,  and execute. Enjoy!
 
 ## Options and Defaults
 These variables will be user-defined at the time of running the binary. If not defined, the defaults will be used.
