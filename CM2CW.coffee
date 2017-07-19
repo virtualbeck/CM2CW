@@ -1,15 +1,20 @@
-request = require('request')
-aws = require('aws-sdk')
+request = require 'request'
+aws     = require 'aws-sdk'
 
 config = 
-  environment: process.env.NODE_ENV or 'development'
-  region: process.env.AWS_REGION or 'us-east-1'
-  username: process.env.USERNAME or 'admin'
-  password: process.env.PASSWORD
-  url: process.env.URL
+  environment: process.env.NODE_ENV             or 'development'
+  region:      process.env.AWS_REGION           or 'us-east-1'
+  namespace:   process.env.CLOUDWATCH_NAMESPACE or 'Cloudera'
+  username:    process.env.CLOUDERA_USERNAME    or 'admin'
+  password:    process.env.CLOUDERA_PASSWORD
+  url:         process.env.CLOUDERA_API_URL
 
-unless config.password? or config.url?
-  console.log 'Please define a password'
+unless config.password?
+  console.log 'Please set CLOUDERA_PASSWORD environment variable'
+  process.exit(1)
+
+unless config.url?
+  console.log 'Please set CLOUDERA_API_URL environment variable'
   process.exit(1)
   
 cloudwatch = new (aws.CloudWatch)
@@ -20,33 +25,36 @@ options =
   method: 'GET'
   url: config.url
   headers: 'authorization': "Basic " + new Buffer(config.username + ':' + config.password).toString("base64")
-  
+
+metricData = []
+
 request options, (error, response, body) ->
-  if error
-    throw new Error(error)
-  obj = JSON.parse(body)
-  for item in obj.items
+  throw new Error(error) if error
+
+  for item in JSON.parse(body).items
     for healthcheck in item.healthChecks
       unless healthcheck.suppressed
-        params =
-          MetricData: [ {
-            MetricName: 'ClouderaServiceStatus'
-            Dimensions: [ {
+        metricData.push 
+          Dimensions: [
+            {
               Name: 'healthcheck_name'
               Value: healthcheck.name
-              }
-              {
+            }
+            {
               Name: 'environment'
               Value: config.environment
-              } ]
-            Timestamp: new Date
-            Value: (if healthcheck.summary == 'GOOD' then 1 else 0)
-          } ]
-          Namespace: 'Cloudera'
-        cloudwatch.putMetricData params, (err, data) ->
-          if err
-            console.log err, err.stack
-          else
-            console.log data
-          # successful response
-          return
+            } 
+          ]
+          Value: (if healthcheck.summary == 'GOOD' then 1 else 0)
+          MetricName: 'ClouderaServiceStatus'
+
+  while metricData.length > 0
+    truncatedMetricData = metricData.slice(0,20)
+    metricData = metricData.slice(20)
+
+    cloudwatch.putMetricData {
+        Namespace: config.namespace
+        MetricData: truncatedMetricData
+      }, (err, data) ->
+        console.log err, err.stack if err
+        console.log data if data
