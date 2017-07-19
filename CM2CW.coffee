@@ -1,22 +1,26 @@
 request = require('request')
 aws = require('aws-sdk')
-config = require('./env.json')[process.env.NODE_ENV or 'qa']
 
+config = 
+  environment: process.env.NODE_ENV or 'development'
+  region: process.env.AWS_REGION or 'us-east-1'
+  username: process.env.USERNAME or 'admin'
+  password: process.env.PASSWORD
+  url: process.env.URL
 
-cloudwatch = new (aws.CloudWatch)
-  region: 'us-east-1'
-  apiVersion: '2010-08-01'
-
-password = config.password
-
-unless password?
+unless config.password? or config.url?
   console.log 'Please define a password'
   process.exit(1)
+  
+cloudwatch = new (aws.CloudWatch)
+  region: config.region
+  apiVersion: '2010-08-01'
 
 options =
   method: 'GET'
   url: config.url
-  headers: 'authorization': "Basic " + new Buffer(config.username + ':' + password).toString("base64")
+  headers: 'authorization': "Basic " + new Buffer(config.username + ':' + config.password).toString("base64")
+  
 request options, (error, response, body) ->
   if error
     throw new Error(error)
