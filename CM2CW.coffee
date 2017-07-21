@@ -32,46 +32,46 @@ request baseURLoptions, (error, response, body) ->
   for item in JSON.parse(body).items
     clustername = item.displayName+'/services'
     finalurl = baseurl+clustername
-    console.log finalurl
 
-# unless config.clustername?
-#   console.log 'CLOUDERA_CLUSTERNAME not set; Deriving from first array element "items[0].displayName:"'
-# #=========================================
+    unless config.clustername?
+      console.log 'CLOUDERA_CLUSTERNAME not set; Deriving from first array element "items[0].displayName:"'
+      console.log item.displayName
+    # #=========================================
 
-options =
-  method: 'GET'
-  url: finalurl
-  headers: 'authorization': "Basic " + new Buffer(config.username + ':' + config.password).toString("base64")
+    options =
+      method: 'GET'
+      url: finalurl
+      headers: 'authorization': "Basic " + new Buffer(config.username + ':' + config.password).toString("base64")
 
-metricData = []
+    metricData = []
 
-request options, (error, response, body) ->
-  throw new Error(error) if error
+    request options, (error, response, body) ->
+      throw new Error(error) if error
 
-  for item in JSON.parse(body).items
-    for healthcheck in item.healthChecks
-      unless healthcheck.suppressed
-        metricData.push
-          Dimensions: [
-            {
-              Name: 'healthcheck_name'
-              Value: healthcheck.name
-            }
-            {
-              Name: 'environment'
-              Value: config.environment
-            }
-          ]
-          Value: (if healthcheck.summary == 'GOOD' then 1 else 0)
-          MetricName: 'ClouderaServiceStatus'
+      for item in JSON.parse(body).items
+        for healthcheck in item.healthChecks
+          unless healthcheck.suppressed
+            metricData.push
+              Dimensions: [
+                {
+                  Name: 'healthcheck_name'
+                  Value: healthcheck.name
+                }
+                {
+                  Name: 'environment'
+                  Value: config.environment
+                }
+              ]
+              Value: (if healthcheck.summary == 'GOOD' then 1 else 0)
+              MetricName: 'ClouderaServiceStatus'
 
-  while metricData.length > 0
-    truncatedMetricData = metricData.slice(0,20)
-    metricData = metricData.slice(20)
+      while metricData.length > 0
+        truncatedMetricData = metricData.slice(0,20)
+        metricData = metricData.slice(20)
 
-    cloudwatch.putMetricData {
-      Namespace: config.namespace
-      MetricData: truncatedMetricData
-      }, (err, data) ->
-        console.log err, err.stack if err
-        console.log data if data
+        cloudwatch.putMetricData {
+          Namespace: config.namespace
+          MetricData: truncatedMetricData
+          }, (err, data) ->
+            console.log err, err.stack if err
+            console.log data if data
