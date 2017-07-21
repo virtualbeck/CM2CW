@@ -12,7 +12,7 @@ Name | Default
 `NODE_ENV` | `development`
 `AWS_REGION` | `us-east-1`
 `CLOUDWATCH_NAMESPACE` | `Cloudera`
-`CLOUDWATCH_HOSTNAME` | `localhost`
+`CLOUDWATCH_HOSTNAME` | `http://localhost`
 `CLOUDWATCH_PORT` | `7180`
 `CLOUDERA_USERNAME` | `admin`
 `CLOUDERA_PASSWORD` | **none**
