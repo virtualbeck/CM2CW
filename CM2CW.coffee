@@ -5,7 +5,7 @@ config  =
   environment: process.env.NODE_ENV             or 'development'
   region:      process.env.AWS_REGION           or 'us-east-1'
   namespace:   process.env.CLOUDWATCH_NAMESPACE or 'Cloudera'
-  hostname:    process.env.CLOUDERA_HOSTNAME    or 'localhost'
+  hostname:    process.env.CLOUDERA_HOSTNAME    or 'http://localhost'
   port:        process.env.CLOUDERA_API_PORT    or 7180
   clustername: process.env.CLOUDERA_CLUSTERNAME
   username:    process.env.CLOUDERA_USERNAME    or 'admin'
