@@ -1,6 +1,6 @@
 {
   "name": "cm2cw",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "CM2CW.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
