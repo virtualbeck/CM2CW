@@ -4,7 +4,7 @@
   "main": "CM2CW.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/coffeescript/bin/coffee -c CM2CW.coffee && ./node_modules/pkg/lib-es5/bin.js CM2CW.js --out-path build"
+    "build": "./node_modules/coffeescript/bin/coffee -c CM2CW.coffee && ./node_modules/pkg/lib-es5/bin.js CM2CW.js --out-path build && rm CM2CW.js"
   },
   "author": "",
   "license": "ISC",
